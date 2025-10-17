@@ -1,456 +1,1045 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Explorador de Diversidad</title>
-  
-  <!-- Favicon y App Icons -->
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-  <link rel="manifest" href="site.webmanifest">
-  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌈 Explorador de Diversidad</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  <!-- Open Graph / Imagen destacada para redes -->
-  <meta property="og:title" content="Explorador de Diversidad 🌈">
-  <meta property="og:description" content="Una herramienta interactiva para comprender la diversidad sexual, de género y de expresión de género.">
-  <meta property="og:image" content="https://cvasr.github.io/explorador-diversidad/preview.png">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://cvasr.github.io/explorador-diversidad/">
-  <meta name="twitter:card" content="summary_large_image">
-  
-  <meta name="theme-color" content="#ffffff">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
-  <style>
-    /* Small extras to preserve look & feel */
-    button { -webkit-user-select: none; -moz-user-select: none; user-select: none; }
-    .modal-content { max-height: 90vh; overflow-y: auto; }
-    .focus-ring:focus { outline: none; box-shadow: 0 0 0 6px rgba(59,130,246,0.12); border-color: rgba(59,130,246,1); }
-  </style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #faf5ff 0%, #fce7f3 50%, #dbeafe 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1140px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #4b5563;
+            font-size: 1rem;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+            align-items: start;
+        }
+
+        .alert-purple {
+            background: #faf5ff;
+            border: 2px solid #c084fc;
+            color: #581c87;
+        }
+
+        .alert-blue {
+            background: #eff6ff;
+            border: 2px solid #93c5fd;
+            color: #1e3a8a;
+        }
+
+        .alert-icon {
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .alert strong {
+            font-weight: 600;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            border-bottom: 2px solid #e5e7eb;
+            margin-bottom: 30px;
+        }
+
+        .tab-button {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            color: #6b7280;
+            border-bottom: 4px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s;
+        }
+
+        .tab-button:hover {
+            color: #1f2937;
+        }
+
+        .tab-button.active {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+
+        .layer-buttons {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .layer-button {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border-radius: 12px;
+            border: 3px solid;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+            opacity: 0.8;
+        }
+
+        .layer-button:hover {
+            opacity: 1;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .layer-button.selected {
+            opacity: 1;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.3);
+        }
+
+        .layer-button.has-selection {
+            opacity: 1;
+        }
+
+        .layer-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .layer-content {
+            flex-grow: 1;
+        }
+
+        .layer-title {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #1f2937;
+            margin-bottom: 2px;
+        }
+
+        .layer-subtitle {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 5px;
+        }
+
+        .layer-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #10b981;
+            color: white;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .check-mark {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 28px;
+            height: 28px;
+            background: #2563eb;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+            min-height: 300px;
+        }
+
+        .layer-detail-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .layer-detail-icon {
+            font-size: 2rem;
+        }
+
+        .layer-detail-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .description-box {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin-bottom: 25px;
+        }
+
+        .description-box p {
+            color: #1f2937;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .options-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #1f2937;
+            margin-bottom: 15px;
+        }
+
+        .option-button {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            text-align: left;
+            margin-bottom: 12px;
+            transition: all 0.3s;
+        }
+
+        .option-button:hover {
+            border-color: #60a5fa;
+            background: #f9fafb;
+        }
+
+        .option-button.selected {
+            border-color: #2563eb;
+            background: #eff6ff;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+        }
+
+        .option-label {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 5px;
+        }
+
+        .option-desc {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 250px;
+            text-align: center;
+        }
+
+        .empty-state-emoji {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .empty-state-text {
+            font-size: 1.1rem;
+            color: #6b7280;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1000;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #f3e8ff 0%, #fce7f3 100%);
+            padding: 25px;
+            border-bottom: 2px solid #c084fc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+
+        .close-button:hover {
+            background: rgba(255,255,255,0.5);
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .result-box {
+            background: #faf5ff;
+            border: 2px solid #c084fc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .result-text {
+            color: #374151;
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+
+        .info-box {
+            background: #eff6ff;
+            border: 2px solid #93c5fd;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .footer a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .concept-card {
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid;
+            margin-bottom: 20px;
+        }
+
+        .concept-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .concept-icon {
+            font-size: 1.5rem;
+        }
+
+        .concept-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .concept-text {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .concept-sources {
+            font-size: 0.75rem;
+            margin-top: 10px;
+        }
+
+        .concept-sources a {
+            color: inherit;
+            text-decoration: underline;
+        }
+
+        .key-concepts {
+            background: linear-gradient(135deg, #eef2ff 0%, #faf5ff 100%);
+            border: 2px solid #a5b4fc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .key-concepts h3 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #3730a3;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+
+        .key-concepts p {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .key-concepts .highlight {
+            background: rgba(255,255,255,0.5);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #c7d2fe;
+            margin-bottom: 12px;
+        }
+
+        .concept-grid {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .final-note {
+            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+            border: 2px solid #93c5fd;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Colores para cada capa */
+        .layer-identidad {
+            border-color: #c084fc;
+            background: #faf5ff;
+        }
+        .layer-orientacion {
+            border-color: #f87171;
+            background: #fef2f2;
+        }
+        .layer-expresion {
+            border-color: #fb923c;
+            background: #fff7ed;
+        }
+        .layer-sexo {
+            border-color: #34d399;
+            background: #f0fdf4;
+        }
+
+        /* Responsive */
+        @media (min-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            .layer-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .concept-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .layer-buttons {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 p-4 lg:p-6">
-  <div class="max-w-[1140px] mx-auto" id="root"></div>
-
-<script>
-/* Full reimplementation faithful to your .tsx, preserving all messages, styles and popup.
-   Changes made: lucide icons rendered via data-lucide and desktop layout uses grid-cols-4 (no horizontal scroll).
-*/
-
-const CREDITOS = {
-  nombre: "Gabriel Sebastian Web",
-  link: "https://gabrielsebastianweb.com/",
-  linkTexto: "www.gabrielsebastianweb.com"
-};
-
-const layers = {
-  identidad: {
-    title: 'Identidad de Género',
-    subtitle: 'En tu mente',
-    icon: 'brain',
-    color: 'text-purple-600',
-    bgColor: 'bg-purple-100',
-    borderColor: 'border-purple-400',
-    description: 'Es cómo te sientes y te identificas internamente en relación con el género. Es tu experiencia personal y profunda de ser hombre, mujer o no binario.',
-    options: [
-      { id: 'hombre', label: 'Hombre', desc: 'Me identifico como hombre' },
-      { id: 'mujer', label: 'Mujer', desc: 'Me identifico como mujer' },
-      { id: 'no-binario', label: 'No binario', desc: 'Mi identidad está fuera del binario hombre/mujer' }
-    ]
-  },
-  orientacion: {
-    title: 'Orientación Sexual',
-    subtitle: 'En tu corazón',
-    icon: 'heart',
-    color: 'text-red-600',
-    bgColor: 'bg-red-100',
-    borderColor: 'border-red-400',
-    description: 'Es hacia quién sientes atracción romántica, emocional y/o sexual. Es independiente de tu sexo biológico, identidad y expresión de género.',
-    options: [
-      { id: 'heterosexual', label: 'Heterosexual', desc: 'Atracción hacia personas de género diferente' },
-      { id: 'gay', label: 'Gay', desc: 'Hombre que siente atracción hacia otros hombres' },
-      { id: 'lesbiana', label: 'Lesbiana', desc: 'Mujer que siente atracción hacia otras mujeres' },
-      { id: 'bisexual-pansexual', label: 'Bisexual/Pansexual', desc: 'Atracción hacia personas independientemente de su género' }
-    ]
-  },
-  expresion: {
-    title: 'Expresión de Género',
-    subtitle: 'Cómo te muestras',
-    icon: 'sparkles',
-    color: 'text-orange-600',
-    bgColor: 'bg-orange-100',
-    borderColor: 'border-orange-400',
-    description: 'Es cómo expresas tu género externamente a través de tu ropa, comportamiento, manera de hablar, corte de cabello, etc. Puede o no coincidir con tu identidad de género.',
-    options: [
-      { id: 'masculina', label: 'Masculina', desc: 'Expreso mi género de forma típicamente masculina' },
-      { id: 'femenina', label: 'Femenina', desc: 'Expreso mi género de forma típicamente femenina' }
-    ]
-  },
-  sexo: {
-    title: 'Sexo Biológico',
-    subtitle: 'Con lo que naces',
-    icon: 'user',
-    color: 'text-green-700',
-    bgColor: 'bg-green-100',
-    borderColor: 'border-green-400',
-    description: 'Son las características físicas y biológicas con las que nacemos (cromosomas, hormonas, órganos reproductivos). Tradicionalmente se ha clasificado como masculino, femenino o intersexual.',
-    options: [
-      { id: 'masculino', label: 'Masculino', desc: 'Características típicamente asociadas con el sexo masculino' },
-      { id: 'femenino', label: 'Femenino', desc: 'Características típicamente asociadas con el sexo femenino' },
-      { id: 'intersexual', label: 'Intersexual', desc: 'Variaciones en características sexuales que no encajan en categorías binarias' }
-    ]
-  }
-};
-
-const messages = {
-  'masculino-hombre-masculina-heterosexual': 'Hombre cisgénero heterosexual con expresión de género masculina.',
-  'masculino-hombre-masculina-gay': 'Hombre cisgénero gay con expresión de género masculina.',
-  'masculino-hombre-masculina-lesbiana': 'Esta combinación presenta una inconsistencia: el término "lesbiana" se utiliza específicamente para mujeres atraídas a mujeres.',
-  'masculino-hombre-masculina-bisexual-pansexual': 'Hombre cisgénero bisexual/pansexual con expresión de género masculina.',
-  'masculino-hombre-femenina-heterosexual': 'Hombre cisgénero heterosexual con expresión de género femenina.',
-  'masculino-hombre-femenina-gay': 'Hombre cisgénero gay con expresión de género femenina.',
-  'masculino-hombre-femenina-lesbiana': 'Esta combinación presenta una inconsistencia: el término "lesbiana" se utiliza específicamente para mujeres.',
-  'masculino-hombre-femenina-bisexual-pansexual': 'Hombre cisgénero bisexual/pansexual con expresión de género femenina.',
-  'masculino-mujer-masculina-heterosexual': 'Mujer transgénero heterosexual con expresión de género masculina.',
-  'masculino-mujer-masculina-gay': 'Esta combinación presenta una inconsistencia: para una mujer atraída a mujeres, el término apropiado sería "lesbiana".',
-  'masculino-mujer-masculina-lesbiana': 'Mujer transgénero lesbiana con expresión de género masculina.',
-  'masculino-mujer-masculina-bisexual-pansexual': 'Mujer transgénero bisexual/pansexual con expresión de género masculina.',
-  'masculino-mujer-femenina-heterosexual': 'Mujer transgénero heterosexual con expresión de género femenina.',
-  'masculino-mujer-femenina-gay': 'Esta combinación presenta una inconsistencia: para una mujer atraída a mujeres, el término apropiado sería "lesbiana".',
-  'masculino-mujer-femenina-lesbiana': 'Mujer transgénero lesbiana con expresión de género femenina.',
-  'masculino-mujer-femenina-bisexual-pansexual': 'Mujer transgénero bisexual/pansexual con expresión de género femenina.',
-  'masculino-no-binario-masculina-heterosexual': 'Persona no binaria (asignada masculina al nacer) con expresión de género masculina, orientación heterosexual.',
-  'masculino-no-binario-masculina-gay': 'Persona no binaria (asignada masculina al nacer) con expresión de género masculina, orientación gay.',
-  'masculino-no-binario-masculina-lesbiana': 'Persona no binaria (asignada masculina al nacer) con expresión de género masculina, orientación lesbiana.',
-  'masculino-no-binario-masculina-bisexual-pansexual': 'Persona no binaria (asignada masculina al nacer) con expresión de género masculina, bisexual/pansexual.',
-  'masculino-no-binario-femenina-heterosexual': 'Persona no binaria (asignada masculina al nacer) con expresión de género femenina, orientación heterosexual.',
-  'masculino-no-binario-femenina-gay': 'Persona no binaria (asignada masculina al nacer) con expresión de género femenina, orientación gay.',
-  'masculino-no-binario-femenina-lesbiana': 'Persona no binaria (asignada masculina al nacer) con expresión de género femenina, orientación lesbiana.',
-  'masculino-no-binario-femenina-bisexual-pansexual': 'Persona no binaria (asignada masculina al nacer) con expresión de género femenina, bisexual/pansexual.',
-  'femenino-hombre-masculina-heterosexual': 'Hombre transgénero heterosexual con expresión de género masculina.',
-  'femenino-hombre-masculina-gay': 'Hombre transgénero gay con expresión de género masculina.',
-  'femenino-hombre-masculina-lesbiana': 'Esta combinación presenta una inconsistencia: el término "lesbiana" se utiliza específicamente para mujeres.',
-  'femenino-hombre-masculina-bisexual-pansexual': 'Hombre transgénero bisexual/pansexual con expresión de género masculina.',
-  'femenino-hombre-femenina-heterosexual': 'Hombre transgénero heterosexual con expresión de género femenina.',
-  'femenino-hombre-femenina-gay': 'Hombre transgénero gay con expresión de género femenina.',
-  'femenino-hombre-femenina-lesbiana': 'Esta combinación presenta una inconsistencia: el término "lesbiana" se utiliza específicamente para mujeres.',
-  'femenino-hombre-femenina-bisexual-pansexual': 'Hombre transgénero bisexual/pansexual con expresión de género femenina.',
-  'femenino-mujer-masculina-heterosexual': 'Mujer cisgénero heterosexual con expresión de género masculina.',
-  'femenino-mujer-masculina-gay': 'Esta combinación presenta una inconsistencia: para una mujer atraída a mujeres, el término apropiado sería "lesbiana".',
-  'femenino-mujer-masculina-lesbiana': 'Mujer cisgénero lesbiana con expresión de género masculina.',
-  'femenino-mujer-masculina-bisexual-pansexual': 'Mujer cisgénero bisexual/pansexual con expresión de género masculina.',
-  'femenino-mujer-femenina-heterosexual': 'Mujer cisgénero heterosexual con expresión de género femenina.',
-  'femenino-mujer-femenina-gay': 'Esta combinación presenta una inconsistencia: para una mujer atraída a mujeres, el término apropiado sería "lesbiana".',
-  'femenino-mujer-femenina-lesbiana': 'Mujer cisgénero lesbiana con expresión de género femenina.',
-  'femenino-mujer-femenina-bisexual-pansexual': 'Mujer cisgénero bisexual/pansexual con expresión de género femenina.',
-  'femenino-no-binario-masculina-heterosexual': 'Persona no binaria (asignada femenina al nacer) con expresión de género masculina, orientación heterosexual.',
-  'femenino-no-binario-masculina-gay': 'Persona no binaria (asignada femenina al nacer) con expresión de género masculina, orientación gay.',
-  'femenino-no-binario-masculina-lesbiana': 'Persona no binaria (asignada femenina al nacer) con expresión de género masculina, orientación lesbiana.',
-  'femenino-no-binario-masculina-bisexual-pansexual': 'Persona no binaria (asignada femenina al nacer) con expresión de género masculina, bisexual/pansexual.',
-  'femenino-no-binario-femenina-heterosexual': 'Persona no binaria (asignada femenina al nacer) con expresión de género femenina, orientación heterosexual.',
-  'femenino-no-binario-femenina-gay': 'Persona no binaria (asignada femenina al nacer) con expresión de género femenina, orientación gay.',
-  'femenino-no-binario-femenina-lesbiana': 'Persona no binaria (asignada femenina al nacer) con expresión de género femenina, orientación lesbiana.',
-  'femenino-no-binario-femenina-bisexual-pansexual': 'Persona no binaria (asignada femenina al nacer) con expresión de género femenina, bisexual/pansexual.',
-  'intersexual-hombre-masculina-heterosexual': 'Persona intersexual que se identifica como hombre heterosexual con expresión de género masculina.',
-  'intersexual-hombre-masculina-gay': 'Persona intersexual que se identifica como hombre gay con expresión de género masculina.',
-  'intersexual-hombre-masculina-lesbiana': 'Esta combinación presenta una inconsistencia: el término "lesbiana" se utiliza para mujeres.',
-  'intersexual-hombre-masculina-bisexual-pansexual': 'Persona intersexual que se identifica como hombre bisexual/pansexual con expresión de género masculina.',
-  'intersexual-hombre-femenina-heterosexual': 'Persona intersexual que se identifica como hombre heterosexual con expresión de género femenina.',
-  'intersexual-hombre-femenina-gay': 'Persona intersexual que se identifica como hombre gay con expresión de género femenina.',
-  'intersexual-hombre-femenina-lesbiana': 'Esta combinación presenta una inconsistencia: el término "lesbiana" se utiliza para mujeres.',
-  'intersexual-hombre-femenina-bisexual-pansexual': 'Persona intersexual que se identifica como hombre bisexual/pansexual con expresión de género femenina.',
-  'intersexual-mujer-masculina-heterosexual': 'Persona intersexual que se identifica como mujer heterosexual con expresión de género masculina.',
-  'intersexual-mujer-masculina-gay': 'Esta combinación presenta una inconsistencia: para una mujer atraída a mujeres, el término apropiado sería "lesbiana".',
-  'intersexual-mujer-masculina-lesbiana': 'Persona intersexual que se identifica como mujer lesbiana con expresión de género masculina.',
-  'intersexual-mujer-masculina-bisexual-pansexual': 'Persona intersexual que se identifica como mujer bisexual/pansexual con expresión de género masculina.',
-  'intersexual-mujer-femenina-heterosexual': 'Persona intersexual que se identifica como mujer heterosexual con expresión de género femenina.',
-  'intersexual-mujer-femenina-gay': 'Esta combinación presenta una inconsistencia: para una mujer atraída a mujeres, el término apropiado sería "lesbiana".',
-  'intersexual-mujer-femenina-lesbiana': 'Persona intersexual que se identifica como mujer lesbiana con expresión de género femenina.',
-  'intersexual-mujer-femenina-bisexual-pansexual': 'Persona intersexual que se identifica como mujer bisexual/pansexual con expresión de género femenina.',
-  'intersexual-no-binario-masculina-heterosexual': 'Persona no binaria (asignada intersexual al nacer) con expresión de género masculina, orientación heterosexual.',
-  'intersexual-no-binario-masculina-gay': 'Persona no binaria (asignada intersexual al nacer) con expresión de género masculina, orientación gay.',
-  'intersexual-no-binario-masculina-lesbiana': 'Persona no binaria (asignada intersexual al nacer) con expresión de género masculina, orientación lesbiana.',
-  'intersexual-no-binario-masculina-bisexual-pansexual': 'Persona no binaria (asignada intersexual al nacer) con expresión de género masculina, bisexual/pansexual.',
-  'intersexual-no-binario-femenina-heterosexual': 'Persona no binaria (asignada intersexual al nacer) con expresión de género femenina, orientación heterosexual.',
-  'intersexual-no-binario-femenina-gay': 'Persona no binaria (asignada intersexual al nacer) con expresión de género femenina, orientación gay.',
-  'intersexual-no-binario-femenina-lesbiana': 'Persona no binaria (asignada intersexual al nacer) con expresión de género femenina, orientación lesbiana.',
-  'intersexual-no-binario-femenina-bisexual-pansexual': 'Persona no binaria (asignada intersexual al nacer) con expresión de género femenina, bisexual/pansexual.'
-};
-
-let selections = { sexo: null, identidad: null, expresion: null, orientacion: null };
-let selectedLayer = null;
-let showResult = false;
-
-const root = document.getElementById('root');
-
-function allSelected() {
-  return Object.values(selections).every(v => v !== null);
-}
-
-function getResultMessage() {
-  const { sexo, identidad, expresion, orientacion } = selections;
-  const key = `${sexo}-${identidad}-${expresion}-${orientacion}`;
-  return messages[key] || "Combinación única que representa la diversidad de identidades y expresiones.";
-}
-
-function handleSelection(layer, option) {
-  selections = { ...selections, [layer]: option };
-  if (allSelected() && !showResult) {
-    showResult = true;
-  }
-  render();
-}
-
-function resetSelections() {
-  selections = { sexo: null, identidad: null, expresion: null, orientacion: null };
-  selectedLayer = null;
-  showResult = false;
-  render();
-}
-
-function setSelectedLayer(key) {
-  selectedLayer = key;
-  render();
-}
-
-function renderButton(key, layer, breakpoint) {
-  const isSelected = selectedLayer === key;
-  const hasSelection = selections[key] !== null;
-
-  const config = {
-    mobile: { size: 'w-14 h-14', text: 'text-xs', padding: 'p-3 border-3', ring: 'ring-2', check: 'w-5 h-5 -top-1.5 -right-1.5' },
-    tablet: { size: 'w-16 h-16', text: 'text-sm', padding: 'p-3 border-3', ring: 'ring-2', check: 'w-5 h-5 -top-1.5 -right-1.5' },
-    desktop: { size: 'w-20 h-20', text: 'text-base', padding: 'p-4 border-4', ring: 'ring-4', check: 'w-7 h-7 -top-2 -right-2' }
-  };
-  const c = config[breakpoint];
-
-  // Create outer button element
-  const btn = document.createElement('button');
-  btn.className = `relative ${c.padding} rounded-xl transition-all ${layer.bgColor} ${layer.borderColor} ${isSelected ? `${c.ring} ring-blue-400 shadow-2xl` : 'hover:shadow-lg'} ${hasSelection ? 'opacity-100' : 'opacity-80'} flex items-center gap-2`;
-  btn.onclick = () => setSelectedLayer(key);
-
-  // Icon box
-  const iconBox = document.createElement('div');
-  iconBox.className = `${c.size} bg-white/50 rounded-lg flex items-center justify-center flex-shrink-0`;
-  const icon = document.createElement('i');
-  icon.setAttribute('data-lucide', layer.icon);
-  icon.className = layer.color;
-  icon.style.width = '28px';
-  icon.style.height = '28px';
-  iconBox.appendChild(icon);
-  btn.appendChild(iconBox);
-
-  // Text area
-  const textDiv = document.createElement('div');
-  textDiv.className = "text-left flex-grow";
-  const h3 = document.createElement('h3');
-  h3.className = `font-bold ${c.text} text-gray-800 mb-0.5`;
-  h3.textContent = layer.title;
-  const psub = document.createElement('p');
-  psub.className = "text-xs text-gray-600 mb-1";
-  psub.textContent = layer.subtitle;
-  textDiv.appendChild(h3);
-  textDiv.appendChild(psub);
-
-  if (hasSelection) {
-    const sel = document.createElement('div');
-    sel.className = "px-2 py-0.5 bg-green-500 text-white text-xs font-bold rounded-full inline-block truncate max-w-full";
-    const selectedLabel = (layer.options && layer.options.find(o => o.id === selections[key])) ? layer.options.find(o => o.id === selections[key]).label : selections[key];
-    sel.textContent = "✓ " + selectedLabel;
-    textDiv.appendChild(sel);
-  }
-
-  btn.appendChild(textDiv);
-
-  if (isSelected) {
-    const check = document.createElement('div');
-    check.className = `absolute ${c.check} bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg`;
-    check.textContent = "✓";
-    btn.appendChild(check);
-  }
-
-  return btn;
-}
-
-function render() {
-  root.innerHTML = '';
-
-  const container = document.createElement('div');
-
-  // Header
-  const header = document.createElement('div');
-  header.className = "text-center mb-4 lg:mb-6";
-  header.innerHTML = `<h1 class="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800 mb-2">🌈 Explorador de Diversidad</h1>
-    <p class="text-sm md:text-base lg:text-lg text-gray-600 max-w-3xl mx-auto px-2">Una herramienta interactiva básica para entender la diversidad sexual, de género y de expresión de género</p>`;
-  container.appendChild(header);
-
-  // Info boxes
-  const info1 = document.createElement('div');
-  info1.className = "bg-purple-50 border-2 border-purple-300 rounded-lg p-3 lg:p-4 mb-3 lg:mb-4";
-  info1.innerHTML = `<div class="flex items-start gap-2 lg:gap-3"><i data-lucide="alert-circle" class="text-purple-600 mt-1 flex-shrink-0"></i><p class="text-purple-900 text-xs lg:text-sm"><strong>Esta herramienta está diseñada para personas con interés genuino</strong> en entender y respetar la diversidad sexual, de género y de expresión de género en las personas.</p></div>`;
-  container.appendChild(info1);
-
-  const info2 = document.createElement('div');
-  info2.className = "bg-blue-50 border-2 border-blue-300 rounded-lg p-3 lg:p-4 mb-4 lg:mb-6";
-  info2.innerHTML = `<div class="flex items-start gap-2 lg:gap-3"><i data-lucide="info" class="text-blue-600 mt-1 flex-shrink-0"></i><div><h3 class="font-bold text-blue-900 mb-1 lg:mb-2 text-sm lg:text-base">📖 ¡Importante! Lee con atención</h3><p class="text-blue-800 text-xs lg:text-sm">Haz clic en cada recuadro para explorar los conceptos. <strong>Es fundamental que leas las descripciones</strong> antes de seleccionar, ya que te ayudarán a comprender cómo estos cuatro aspectos son independientes entre sí. Estas son categorías básicas; el espectro completo es mucho más amplio y las combinaciones infinitas.</p></div></div>`;
-  container.appendChild(info2);
-
-  // Buttons area
-  const buttonsArea = document.createElement('div');
-  buttonsArea.className = "mb-6 lg:mb-8";
-
-  const gridMobile = document.createElement('div');
-  gridMobile.className = "grid grid-cols-1 gap-2 md:hidden";
-  Object.entries(layers).forEach(([key, layer]) => {
-    gridMobile.appendChild(renderButton(key, layer, 'mobile'));
-  });
-  buttonsArea.appendChild(gridMobile);
-
-  const gridTablet = document.createElement('div');
-  gridTablet.className = "hidden md:grid lg:hidden grid-cols-2 gap-2";
-  Object.entries(layers).forEach(([key, layer]) => {
-    gridTablet.appendChild(renderButton(key, layer, 'tablet'));
-  });
-  buttonsArea.appendChild(gridTablet);
-
-  const gridDesktop = document.createElement('div');
-  gridDesktop.className = "hidden lg:grid lg:grid-cols-4 gap-3";
-  Object.entries(layers).forEach(([key, layer]) => {
-    gridDesktop.appendChild(renderButton(key, layer, 'desktop'));
-  });
-  buttonsArea.appendChild(gridDesktop);
-
-  container.appendChild(buttonsArea);
-
-  // Main card
-  const mainCard = document.createElement('div');
-  mainCard.className = "bg-white rounded-2xl shadow-xl p-4 lg:p-8";
-
-  if (selectedLayer) {
-    const top = document.createElement('div');
-    top.className = "flex items-center gap-2 lg:gap-3 mb-3 lg:mb-4";
-    const iconWrap = document.createElement('i');
-    iconWrap.setAttribute('data-lucide', layers[selectedLayer].icon);
-    iconWrap.className = layers[selectedLayer].color;
-    top.appendChild(iconWrap);
-    const h2 = document.createElement('h2');
-    h2.className = "text-lg md:text-xl lg:text-2xl font-bold text-gray-800";
-    h2.textContent = layers[selectedLayer].title;
-    top.appendChild(h2);
-    mainCard.appendChild(top);
-
-    const yellow = document.createElement('div');
-    yellow.className = "bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4 lg:mb-6";
-    yellow.innerHTML = `<p class="text-gray-800 text-xs md:text-sm lg:text-base leading-relaxed font-medium"><strong class="text-yellow-800">📖 Lee esto:</strong> ${layers[selectedLayer].description}</p>`;
-    mainCard.appendChild(yellow);
-
-    const subtitle = document.createElement('h3');
-    subtitle.className = "font-bold text-sm md:text-base lg:text-lg text-gray-800 mb-3";
-    subtitle.textContent = "Selecciona una opción:";
-    mainCard.appendChild(subtitle);
-
-    const optionsGrid = document.createElement('div');
-    optionsGrid.className = "grid gap-3";
-    layers[selectedLayer].options.forEach(option => {
-      const btn = document.createElement('button');
-      btn.className = `p-3 lg:p-4 rounded-lg border-2 text-left transition-all ${selections[selectedLayer] === option.id ? `border-blue-500 ${layers[selectedLayer].bgColor} ring-2 ring-blue-300` : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'}`;
-      btn.onclick = () => handleSelection(selectedLayer, option.id);
-      const p1 = document.createElement('p');
-      p1.className = "font-semibold text-gray-800 text-xs md:text-sm lg:text-base";
-      p1.textContent = option.label;
-      const p2 = document.createElement('p');
-      p2.className = "text-xs lg:text-sm text-gray-600 mt-1";
-      p2.textContent = option.desc;
-      btn.appendChild(p1);
-      btn.appendChild(p2);
-      optionsGrid.appendChild(btn);
-    });
-    mainCard.appendChild(optionsGrid);
-
-  } else {
-    mainCard.innerHTML = `<div class="h-40 md:h-48 lg:h-64 flex items-center justify-center text-center"><div><div class="text-4xl md:text-5xl lg:text-6xl mb-4">👆</div><p class="text-base md:text-lg lg:text-xl text-gray-600 px-4">Haz clic en uno de los recuadros de arriba para comenzar a explorar</p></div></div>`;
-  }
-
-  container.appendChild(mainCard);
-
-  // actions
-  if (allSelected()) {
-    const actions = document.createElement('div');
-    actions.className = "flex flex-col sm:flex-row gap-3 justify-center items-center mt-4 lg:mt-6";
-    const btn1 = document.createElement('button');
-    btn1.className = "px-6 lg:px-8 py-2.5 lg:py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-colors text-sm lg:text-base flex items-center gap-2";
-    btn1.onclick = () => { showResult = true; render(); };
-    btn1.innerHTML = `<i data-lucide="eye"></i> Ver Resultado`;
-    const btn2 = document.createElement('button');
-    btn2.className = "px-6 lg:px-8 py-2.5 lg:py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-semibold transition-colors text-sm lg:text-base";
-    btn2.onclick = resetSelections;
-    btn2.textContent = "Reiniciar";
-    actions.appendChild(btn1);
-    actions.appendChild(btn2);
-    container.appendChild(actions);
-  }
-
-  // footer
-  const footer = document.createElement('div');
-  footer.className = "mt-6 lg:mt-8 text-center text-xs lg:text-sm text-gray-600";
-  footer.innerHTML = `<p>Herramienta educativa sobre diversidad sexual y de género</p>
-    <p class="mt-2">💡 Idea original de <a href="${CREDITOS.link}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 font-semibold">${CREDITOS.nombre}</a> (${CREDITOS.linkTexto})</p>
-    <p class="mt-1">🤖 Desarrollada con ayuda de Inteligencia Artificial</p>`;
-  container.appendChild(footer);
-
-  root.appendChild(container);
-
-  // modal popup exacto
-  if (showResult) {
-    const overlay = document.createElement('div');
-    overlay.className = "fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50";
-    overlay.onclick = () => { showResult = false; render(); };
-
-    const modal = document.createElement('div');
-    modal.className = "bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto modal-content";
-    modal.onclick = (e) => e.stopPropagation();
-
-    modal.innerHTML = `
-      <div class="sticky top-0 bg-gradient-to-r from-purple-100 to-pink-100 p-4 lg:p-6 rounded-t-2xl border-b-2 border-purple-300">
-        <div class="flex items-center justify-between">
-          <h3 class="text-xl md:text-2xl font-bold text-gray-800">🎉 Tu Resultado</h3>
-          <button id="modal-close" class="p-2 hover:bg-white/50 rounded-full transition-colors">
-            <i data-lucide="x" class="text-gray-700"></i>
-          </button>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🌈 Explorador de Diversidad</h1>
+            <p>Una herramienta interactiva básica para entender la diversidad sexual, de género y de expresión de género</p>
         </div>
-      </div>
-      <div class="p-4 lg:p-6 space-y-4">
-        <div class="bg-purple-50 border-2 border-purple-300 rounded-xl p-4 lg:p-5">
-          <p class="text-gray-700 text-sm md:text-base lg:text-lg leading-relaxed" id="result-text"></p>
+
+        <!-- Alerts -->
+        <div class="alert alert-purple">
+            <div class="alert-icon">⚠️</div>
+            <p><strong>Esta herramienta está diseñada para personas con interés genuino</strong> en entender y respetar la diversidad sexual, de género y de expresión de género en las personas.</p>
         </div>
-        <div class="bg-blue-50 border-2 border-blue-300 rounded-xl p-4 lg:p-5">
-          <p class="text-gray-700 text-xs md:text-sm lg:text-base leading-relaxed"><strong>Recuerda:</strong> No necesariamente una persona que encaje con estas opciones es exactamente lo que el resultado muestra, porque cada persona es única. Estos cuatro aspectos son independientes entre sí, y entender esto es fundamental para respetar y celebrar la diversidad. <strong>Todas las combinaciones son válidas.</strong></p>
+
+        <div class="alert alert-blue">
+            <div class="alert-icon">ℹ️</div>
+            <div>
+                <h3 style="font-weight: 600; margin-bottom: 8px;">📖 ¡Importante! Lee con atención</h3>
+                <p>Haz clic en cada recuadro para explorar los conceptos. <strong>Es fundamental que leas las descripciones</strong> antes de seleccionar, ya que te ayudarán a comprender cómo estos cuatro aspectos son independientes entre sí. Estas son categorías básicas; el espectro completo es mucho más amplio y las combinaciones infinitas.</p>
+            </div>
         </div>
-        <div class="flex flex-col md:flex-row gap-3">
-          <button id="continue-btn" class="flex-1 px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-colors text-sm md:text-base">Continuar Explorando</button>
-          <button id="new-btn" class="flex-1 px-4 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-semibold transition-colors text-sm md:text-base">Crear Nueva Combinación</button>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-button active" onclick="changeTab('explorador')">🎯 Explorador</button>
+            <button class="tab-button" onclick="changeTab('conceptos')">📚 Conceptos</button>
         </div>
-      </div>
-    `;
-    overlay.appendChild(modal);
-    root.appendChild(overlay);
 
-    document.getElementById('result-text').textContent = getResultMessage();
-    document.getElementById('modal-close').onclick = () => { showResult = false; render(); };
-    document.getElementById('continue-btn').onclick = () => { showResult = false; render(); };
-    document.getElementById('new-btn').onclick = () => { resetSelections(); };
-  }
+        <!-- Tab Content: Explorador -->
+        <div id="tab-explorador">
+            <!-- Layer Buttons -->
+            <div class="layer-buttons" id="layerButtons"></div>
 
-  // render lucide icons
-  if (window.lucide) {
-    try { window.lucide.createIcons(); } catch(e) { /* ignore */ }
-  }
-}
+            <!-- Main Content -->
+            <div class="main-content" id="mainContent"></div>
 
-// initial render
-render();
+            <!-- Action Buttons -->
+            <div id="actionButtons" class="hidden"></div>
+        </div>
 
-</script>
+        <!-- Tab Content: Conceptos -->
+        <div id="tab-conceptos" class="hidden">
+            <div class="main-content">
+                <h2 style="text-align: center; font-size: 1.8rem; margin-bottom: 25px; color: #1f2937;">📚 Conceptos Fundamentales</h2>
+
+                <!-- Key Concepts -->
+                <div class="key-concepts">
+                    <h3>ℹ️ Conceptos clave: Cisgénero y Transgénero</h3>
+                    <div class="highlight">
+                        <strong style="color: #3730a3;">⚠️ Importante entender primero:</strong> Al nacer, se <strong>observa</strong> el sexo biológico (características físicas). Basándose en esa observación, se <strong>asigna</strong> un género: "es niño" o "es niña". El sexo no se asigna, se observa. Lo que se asigna es el género.
+                    </div>
+                    <p>
+                        <strong style="color: #3730a3;">Persona cisgénero:</strong> Es aquella cuya identidad de género coincide con el género que le fue asignado al nacer. Por ejemplo, si al nacer observaron que tenías características físicas masculinas y te asignaron el género "niño", y tú te identificas como hombre, eres una persona cisgénero. Lo mismo si te asignaron el género "niña" al nacer y te identificas como mujer.
+                    </p>
+                    <p>
+                        <strong style="color: #3730a3;">Persona transgénero (o trans):</strong> Es aquella cuya identidad de género <strong>no</strong> coincide con el género que le fue asignado al nacer. Por ejemplo, si al nacer te asignaron el género "niño" pero te identificas como mujer, eres una mujer transgénero. Si te asignaron el género "niña" al nacer pero te identificas como hombre, eres un hombre transgénero.
+                    </p>
+                    <p style="color: #6b7280; font-style: italic;">
+                        💡 Nota importante: Tanto las personas cisgénero como las transgénero pueden tener cualquier orientación sexual (heterosexual, gay, lesbiana, bisexual, etc.) y cualquier expresión de género. Estos son aspectos independientes entre sí.
+                    </p>
+                    <div class="concept-sources" style="color: #4338ca;">
+                        <strong>Fuentes:</strong> 
+                        <a href="https://www.plannedparenthood.org/es/temas-de-salud/para-adolescentes/todo-sobre-sexo-genero-e-identidad-de-genero/que-significa-transgenero-y-cisgenero" target="_blank">Planned Parenthood</a>, 
+                        <a href="https://www.hrc.org/resources/preguntas-frecuentes-sobre-el-tema-transgenero" target="_blank">HRC</a>
+                    </div>
+                </div>
+
+                <!-- Concept Cards -->
+                <div class="concept-grid">
+                    <div class="concept-card" style="background: #faf5ff; border-color: #c084fc;">
+                        <div class="concept-header">
+                            <div class="concept-icon">🧠</div>
+                            <div class="concept-title" style="color: #581c87;">Identidad de Género</div>
+                        </div>
+                        <div class="concept-text" style="color: #374151;">
+                            Es la vivencia interna e individual del género tal como cada persona la experimenta profundamente. Puede o no corresponder con el sexo asignado al nacer. Es cómo te percibes a ti mismo/a en tu interior: hombre, mujer, ambos, ninguno, o fuera del binario. <strong>Esta identidad es independiente</strong> de tu anatomía, tu expresión externa o tu orientación sexual.
+                        </div>
+                        <div class="concept-sources" style="color: #581c87;">
+                            <strong>Fuentes:</strong> 
+                            <a href="https://www.unfe.org/es/definitions/" target="_blank">ONU Libres e Iguales</a>, 
+                            <a href="https://www.oas.org/es/cidh/lgtbi/mandato/precisiones.asp" target="_blank">CIDH-OEA</a>
+                        </div>
+                    </div>
+
+                    <div class="concept-card" style="background: #fef2f2; border-color: #f87171;">
+                        <div class="concept-header">
+                            <div class="concept-icon">❤️</div>
+                            <div class="concept-title" style="color: #991b1b;">Orientación Sexual</div>
+                        </div>
+                        <div class="concept-text" style="color: #374151;">
+                            Se refiere a la atracción emocional, romántica y/o sexual que una persona siente hacia otras personas. Puede ser hacia personas del mismo género, de género diferente, de varios géneros, o hacia ninguno. <strong>Es totalmente independiente</strong> de tu identidad de género, expresión o sexo biológico. Una persona trans puede ser heterosexual, gay, lesbiana, bisexual, etc.
+                        </div>
+                        <div class="concept-sources" style="color: #991b1b;">
+                            <strong>Fuentes:</strong> 
+                            <a href="http://saludecuador.org/maternoinfantil/archivos/smi_D335.pdf" target="_blank">OMS/OPS - Salud Sexual</a>, 
+                            <a href="https://www.oas.org/es/cidh/lgtbi/mandato/precisiones.asp" target="_blank">CIDH-OEA</a>
+                        </div>
+                    </div>
+
+                    <div class="concept-card" style="background: #fff7ed; border-color: #fb923c;">
+                        <div class="concept-header">
+                            <div class="concept-icon">✨</div>
+                            <div class="concept-title" style="color: #9a3412;">Expresión de Género</div>
+                        </div>
+                        <div class="concept-text" style="color: #374151;">
+                            Es la manera externa en que manifiestas tu género a través de tu comportamiento, vestimenta, peinado, voz, lenguaje corporal y otras características. Puede ser masculina, femenina, andrógina o cualquier combinación. <strong>No determina tu identidad ni orientación.</strong> Un hombre cisgénero puede tener expresión femenina y seguir siendo heterosexual, por ejemplo.
+                        </div>
+                        <div class="concept-sources" style="color: #9a3412;">
+                            <strong>Fuentes:</strong> 
+                            <a href="https://www.unfe.org/es/definitions/" target="_blank">ONU Libres e Iguales</a>, 
+                            <a href="https://www.corteidh.or.cr/sitios/libros/todos/docs/cuadernillo19.pdf" target="_blank">Corte IDH</a>
+                        </div>
+                    </div>
+
+                    <div class="concept-card" style="background: #f0fdf4; border-color: #34d399;">
+                        <div class="concept-header">
+                            <div class="concept-icon">👤</div>
+                            <div class="concept-title" style="color: #065f46;">Sexo Biológico</div>
+                        </div>
+                        <div class="concept-text" style="color: #374151;">
+                            Son las características físicas y biológicas con las que naces, incluyendo cromosomas (XX, XY, y otras variaciones), hormonas, órganos reproductivos y características sexuales secundarias. Tradicionalmente se ha clasificado como masculino o femenino, pero existe la intersexualidad. <strong>El sexo biológico NO determina</strong> tu identidad de género, expresión u orientación sexual.
+                        </div>
+                        <div class="concept-sources" style="color: #065f46;">
+                            <strong>Fuentes:</strong> 
+                            <a href="http://saludecuador.org/maternoinfantil/archivos/smi_D335.pdf" target="_blank">OMS/OPS - Salud Sexual</a>, 
+                            <a href="https://www.oas.org/es/cidh/lgtbi/mandato/precisiones.asp" target="_blank">CIDH-OEA</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Final Note -->
+                <div class="final-note">
+                    <p style="font-size: 0.95rem; color: #1f2937; margin-bottom: 10px;">
+                        <strong>💡 Punto clave:</strong> Estos cuatro aspectos son <strong>independientes</strong> entre sí. Conocer uno NO te dice información sobre los otros. Esta independencia es fundamental para entender y respetar la diversidad humana.
+                    </p>
+                    <p style="font-size: 0.8rem; color: #6b7280;">
+                        <strong>Documentos de referencia:</strong> 
+                        <a href="https://acnudh.org/wp-content/uploads/2013/11/orentación-sexual-e-identidad-de-género2.pdf" target="_blank">ACNUDH</a>, 
+                        <a href="https://yogyakartaprinciples.org/wp-content/uploads/2016/08/principles_sp.pdf" target="_blank">Principios de Yogyakarta</a>, 
+                        <a href="https://www.corteidh.or.cr/sitios/libros/todos/docs/cuadernillo19.pdf" target="_blank">Corte IDH</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>Herramienta educativa sobre diversidad sexual y de género</p>
+            <p style="margin-top: 10px;">💡 Idea original de <a href="https://gabrielsebastianweb.com/" target="_blank">Gabriel Sebastian Web</a></p>
+            <p style="margin-top: 5px;">🤖 Desarrollada con ayuda de Inteligencia Artificial</p>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal-overlay hidden" onclick="closeModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="modal-title">🎉 Tu Resultado</div>
+                <button class="close-button" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="result-box">
+                    <p class="result-text" id="resultText"></p>
+                </div>
+                <div class="info-box">
+                    <p style="font-size: 0.95rem; color: #374151; line-height: 1.6;">
+                        <strong>Recuerda:</strong> No necesariamente una persona que encaje con estas opciones es exactamente lo que el resultado muestra, porque cada persona es única. Estos cuatro aspectos son independientes entre sí, y entender esto es fundamental para respetar y celebrar la diversidad. <strong>Todas las combinaciones son válidas.</strong>
+                    </p>
+                </div>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="closeModal()" style="flex: 1; min-width: 200px;">Continuar Explorando</button>
+                    <button class="btn btn-secondary" onclick="resetAll()" style="flex: 1; min-width: 200px;">Crear Nueva Combinación</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuración de créditos
+        const CREDITOS = {
+            nombre: "Gabriel Sebastian Web",
+            link: "https://gabrielsebastianweb.com/"
+        };
+
+        // Estado de la aplicación
+        const state = {
+            selectedLayer: null,
+            activeTab: 'explorador',
+            selections: {
+                sexo: null,
+                identidad: null,
+                expresion: null,
+                orientacion: null
+            }
+        };
+
+        // Definición de capas
+        const layers = {
+            sexo: {
+                title: 'Sexo Biológico',
+                subtitle: 'Con lo que naces',
+                icon: '👤',
+                color: 'text-green-700',
+                className: 'layer-sexo',
+                description: 'Son las características físicas y biológicas con las que nacemos (cromosomas, hormonas, órganos reproductivos). Tradicionalmente se ha clasificado como masculino, femenino o intersexual.',
+                options: [
+                    { id: 'masculino', label: 'Masculino', desc: 'Características típicamente asociadas con el sexo masculino' },
+                    { id: 'femenino', label: 'Femenino', desc: 'Características típicamente asociadas con el sexo femenino' },
+                    { id: 'intersexual', label: 'Intersexual', desc: 'Variaciones en características sexuales que no encajan en categorías binarias' }
+                ]
+            },
+            identidad: {
+                title: 'Identidad de Género',
+                subtitle: 'En tu mente',
+                icon: '🧠',
+                className: 'layer-identidad',
+                description: 'Es cómo te sientes y te identificas internamente en relación con el género. Es tu experiencia personal y profunda de ser hombre, mujer o no binario.',
+                options: [
+                    { id: 'hombre', label: 'Hombre', desc: 'Me identifico como hombre' },
+                    { id: 'mujer', label: 'Mujer', desc: 'Me identifico como mujer' },
+                    { id: 'no-binario', label: 'No binario', desc: 'Mi identidad está fuera del binario hombre/mujer' }
+                ]
+            },
+            expresion: {
+                title: 'Expresión de Género',
+                subtitle: 'Cómo te muestras',
+                icon: '✨',
+                className: 'layer-expresion',
+                description: 'Es cómo expresas tu género externamente a través de tu ropa, comportamiento, manera de hablar, corte de cabello, etc. Puede o no coincidir con tu identidad de género.',
+                options: [
+                    { id: 'masculina', label: 'Masculina', desc: 'Expreso mi género de forma típicamente masculina' },
+                    { id: 'femenina', label: 'Femenina', desc: 'Expreso mi género de forma típicamente femenina' }
+                ]
+            },
+            orientacion: {
+                title: 'Orientación Sexual',
+                subtitle: 'En tu corazón',
+                icon: '❤️',
+                className: 'layer-orientacion',
+                description: 'Es hacia quién sientes atracción romántica, emocional y/o sexual. Es independiente de tu sexo biológico, identidad y expresión de género.',
+                options: [
+                    { id: 'heterosexual', label: 'Heterosexual', desc: 'Atracción hacia personas de género diferente' },
+                    { id: 'gay', label: 'Gay', desc: 'Hombre que siente atracción hacia otros hombres' },
+                    { id: 'lesbiana', label: 'Lesbiana', desc: 'Mujer que siente atracción hacia otras mujeres' },
+                    { id: 'bisexual-pansexual', label: 'Bisexual/Pansexual', desc: 'Atracción hacia personas independientemente de su género' }
+                ]
+            }
+        };
+
+        // Mensajes de resultado
+        const messages = {
+            'masculino-hombre-masculina-heterosexual': 'Hombre cisgénero heterosexual con expresión de género masculina.',
+            'masculino-hombre-masculina-gay': 'Hombre cisgénero gay con expresión de género masculina.',
+            'masculino-hombre-masculina-lesbiana': 'Esta combinación presenta una inconsistencia: el término "lesbiana" se utiliza específicamente para mujeres atraídas a mujeres.',
+            'masculino-hombre-masculina-bisexual-pansexual': 'Hombre cisgénero bisexual/pansexual con expresión de género masculina.',
+            'masculino-hombre-femenina-heterosexual': 'Hombre cisgénero heterosexual con expresión de género femenina.',
+            'masculino-hombre-femenina-gay': 'Hombre cisgénero gay con expresión de género femenina.',
+            'masculino-hombre-femenina-lesbiana': 'Esta combinación presenta una inconsistencia: el término "lesbiana" se utiliza específicamente para mujeres.',
+            'masculino-hombre-femenina-bisexual-pansexual': 'Hombre cisgénero bisexual/pansexual con expresión de género femenina.',
+            'masculino-mujer-masculina-heterosexual': 'Mujer transgénero heterosexual con expresión de género masculina.',
+            'masculino-mujer-masculina-gay': 'Esta combinación presenta una inconsistencia: para una mujer atraída a mujeres, el término apropiado sería "lesbiana".',
+            'masculino-mujer-masculina-lesbiana': 'Mujer transgénero lesbiana con expresión de género masculina.',
+            'masculino-mujer-masculina-bisexual-pansexual': 'Mujer transgénero bisexual/pansexual con expresión de género masculina.',
+            'masculino-mujer-femenina-heterosexual': 'Mujer transgénero heterosexual con expresión de género femenina.',
+            'masculino-mujer-femenina-gay': 'Esta combinación presenta una inconsistencia: para una mujer atraída a mujeres, el término apropiado sería "lesbiana".',
+            'masculino-mujer-femenina-lesbiana': 'Mujer transgénero lesbiana con expresión de género femenina.',
+            'masculino-mujer-femenina-bisexual-pansexual': 'Mujer transgénero bisexual/pansexual con expresión de género femenina.',
+            'masculino-no-binario-masculina-heterosexual': 'Persona no binaria (asignada masculina al nacer) con expresión de género masculina, orientación heterosexual.',
+            'masculino-no-binario-masculina-gay': 'Persona no binaria (asignada masculina al nacer) con expresión de género masculina, orientación gay.',
+            'masculino-no-binario-masculina-lesbiana': 'Persona no binaria (asignada masculina al nacer) con expresión de género masculina, orientación lesbiana.',
+            'masculino-no-binario-masculina-bisexual-pansexual': 'Persona no binaria (asignada masculina al nacer) con expresión de género masculina, bisexual/pansexual.',
+            'masculino-no-binario-femenina-heterosexual': 'Persona no binaria (asignada masculina al nacer) con expresión de género femenina, orientación heterosexual.',
+            'masculino-no-binario-femenina-gay': 'Persona no binaria (asignada masculina al nacer) con expresión de género femenina, orientación gay.',
+            'masculino-no-binario-femenina-lesbiana': 'Persona no binaria (asignada masculina al nacer) con expresión de género femenina, orientación lesbiana.',
+            'masculino-no-binario-femenina-bisexual-pansexual': 'Persona no binaria (asignada masculina al nacer) con expresión de género femenina, bisexual/pansexual.',
+            'femenino-hombre-masculina-heterosexual': 'Hombre transgénero heterosexual con expresión de género masculina.',
+            'femenino-hombre-masculina-gay': 'Hombre transgénero gay con expresión de género masculina.',
+            'femenino-hombre-masculina-lesbiana': 'Esta combinación presenta una inconsistencia: el término "lesbiana" se utiliza específicamente para mujeres.',
+            'femenino-hombre-masculina-bisexual-pansexual': 'Hombre transgénero bisexual/pansexual con expresión de género masculina.',
+            'femenino-hombre-femenina-heterosexual': 'Hombre transgénero heterosexual con expresión de género femenina.',
+            'femenino-hombre-femenina-gay': 'Hombre transgénero gay con expresión de género femenina.',
+            'femenino-hombre-femenina-lesbiana': 'Esta combinación presenta una inconsistencia: el término "lesbiana" se utiliza específicamente para mujeres.',
+            'femenino-hombre-femenina-bisexual-pansexual': 'Hombre transgénero bisexual/pansexual con expresión de género femenina.',
+            'femenino-mujer-masculina-heterosexual': 'Mujer cisgénero heterosexual con expresión de género masculina.',
+            'femenino-mujer-masculina-gay': 'Esta combinación presenta una inconsistencia: para una mujer atraída a mujeres, el término apropiado sería "lesbiana".',
+            'femenino-mujer-masculina-lesbiana': 'Mujer cisgénero lesbiana con expresión de género masculina.',
+            'femenino-mujer-masculina-bisexual-pansexual': 'Mujer cisgénero bisexual/pansexual con expresión de género masculina.',
+            'femenino-mujer-femenina-heterosexual': 'Mujer cisgénero heterosexual con expresión de género femenina.',
+            'femenino-mujer-femenina-gay': 'Esta combinación presenta una inconsistencia: para una mujer atraída a mujeres, el término apropiado sería "lesbiana".',
+            'femenino-mujer-femenina-lesbiana': 'Mujer cisgénero lesbiana con expresión de género femenina.',
+            'femenino-mujer-femenina-bisexual-pansexual': 'Mujer cisgénero bisexual/pansexual con expresión de género femenina.',
+            'femenino-no-binario-masculina-heterosexual': 'Persona no binaria (asignada femenina al nacer) con expresión de género masculina, orientación heterosexual.',
+            'femenino-no-binario-masculina-gay': 'Persona no binaria (asignada femenina al nacer) con expresión de género masculina, orientación gay.',
+            'femenino-no-binario-masculina-lesbiana': 'Persona no binaria (asignada femenina al nacer) con expresión de género masculina, orientación lesbiana.',
+            'femenino-no-binario-masculina-bisexual-pansexual': 'Persona no binaria (asignada femenina al nacer) con expresión de género masculina, bisexual/pansexual.',
+            'femenino-no-binario-femenina-heterosexual': 'Persona no binaria (asignada femenina al nacer) con expresión de género femenina, orientación heterosexual.',
+            'femenino-no-binario-femenina-gay': 'Persona no binaria (asignada femenina al nacer) con expresión de género femenina, orientación gay.',
+            'femenino-no-binario-femenina-lesbiana': 'Persona no binaria (asignada femenina al nacer) con expresión de género femenina, orientación lesbiana.',
+            'femenino-no-binario-femenina-bisexual-pansexual': 'Persona no binaria (asignada femenina al nacer) con expresión de género femenina, bisexual/pansexual.',
+            'intersexual-hombre-masculina-heterosexual': 'Persona intersexual que se identifica como hombre heterosexual con expresión de género masculina.',
+            'intersexual-hombre-masculina-gay': 'Persona intersexual que se identifica como hombre gay con expresión de género masculina.',
+            'intersexual-hombre-masculina-lesbiana': 'Esta combinación presenta una inconsistencia: el término "lesbiana" se utiliza para mujeres.',
+            'intersexual-hombre-masculina-bisexual-pansexual': 'Persona intersexual que se identifica como hombre bisexual/pansexual con expresión de género masculina.',
+            'intersexual-hombre-femenina-heterosexual': 'Persona intersexual que se identifica como hombre heterosexual con expresión de género femenina.',
+            'intersexual-hombre-femenina-gay': 'Persona intersexual que se identifica como hombre gay con expresión de género femenina.',
+            'intersexual-hombre-femenina-lesbiana': 'Esta combinación presenta una inconsistencia: el término "lesbiana" se utiliza para mujeres.',
+            'intersexual-hombre-femenina-bisexual-pansexual': 'Persona intersexual que se identifica como hombre bisexual/pansexual con expresión de género femenina.',
+            'intersexual-mujer-masculina-heterosexual': 'Persona intersexual que se identifica como mujer heterosexual con expresión de género masculina.',
+            'intersexual-mujer-masculina-gay': 'Esta combinación presenta una inconsistencia: para una mujer atraída a mujeres, el término apropiado sería "lesbiana".',
+            'intersexual-mujer-masculina-lesbiana': 'Persona intersexual que se identifica como mujer lesbiana con expresión de género masculina.',
+            'intersexual-mujer-masculina-bisexual-pansexual': 'Persona intersexual que se identifica como mujer bisexual/pansexual con expresión de género masculina.',
+            'intersexual-mujer-femenina-heterosexual': 'Persona intersexual que se identifica como mujer heterosexual con expresión de género femenina.',
+            'intersexual-mujer-femenina-gay': 'Esta combinación presenta una inconsistencia: para una mujer atraída a mujeres, el término apropiado sería "lesbiana".',
+            'intersexual-mujer-femenina-lesbiana': 'Persona intersexual que se identifica como mujer lesbiana con expresión de género femenina.',
+            'intersexual-mujer-femenina-bisexual-pansexual': 'Persona intersexual que se identifica como mujer bisexual/pansexual con expresión de género femenina.',
+            'intersexual-no-binario-masculina-heterosexual': 'Persona no binaria (asignada intersexual al nacer) con expresión de género masculina, orientación heterosexual.',
+            'intersexual-no-binario-masculina-gay': 'Persona no binaria (asignada intersexual al nacer) con expresión de género masculina, orientación gay.',
+            'intersexual-no-binario-masculina-lesbiana': 'Persona no binaria (asignada intersexual al nacer) con expresión de género masculina, orientación lesbiana.',
+            'intersexual-no-binario-masculina-bisexual-pansexual': 'Persona no binaria (asignada intersexual al nacer) con expresión de género masculina, bisexual/pansexual.',
+            'intersexual-no-binario-femenina-heterosexual': 'Persona no binaria (asignada intersexual al nacer) con expresión de género femenina, orientación heterosexual.',
+            'intersexual-no-binario-femenina-gay': 'Persona no binaria (asignada intersexual al nacer) con expresión de género femenina, orientación gay.',
+            'intersexual-no-binario-femenina-lesbiana': 'Persona no binaria (asignada intersexual al nacer) con expresión de género femenina, orientación lesbiana.',
+            'intersexual-no-binario-femenina-bisexual-pansexual': 'Persona no binaria (asignada intersexual al nacer) con expresión de género femenina, bisexual/pansexual.'
+        };
+
+        // Funciones auxiliares
+        function allSelected() {
+            return Object.values(state.selections).every(s => s !== null);
+        }
+
+        function getResultMessage() {
+            const { sexo, identidad, expresion, orientacion } = state.selections;
+            const key = `${sexo}-${identidad}-${expresion}-${orientacion}`;
+            return messages[key] || "Combinación única que representa la diversidad de identidades y expresiones.";
+        }
+
+        // Funciones de renderizado
+        function renderLayerButtons() {
+            const container = document.getElementById('layerButtons');
+            container.innerHTML = '';
+            
+            Object.entries(layers).forEach(([key, layer]) => {
+                const isSelected = state.selectedLayer === key;
+                const hasSelection = state.selections[key] !== null;
+                
+                const button = document.createElement('div');
+                button.className = `layer-button ${layer.className} ${isSelected ? 'selected' : ''} ${hasSelection ? 'has-selection' : ''}`;
+                button.style.position = 'relative';
+                button.onclick = () => selectLayer(key);
+                
+                button.innerHTML = `
+                    <div class="layer-icon">${layer.icon}</div>
+                    <div class="layer-content">
+                        <div class="layer-title">${layer.title}</div>
+                        <div class="layer-subtitle">${layer.subtitle}</div>
+                        ${hasSelection ? `<div class="layer-badge">✓ ${layers[key].options.find(o => o.id === state.selections[key])?.label}</div>` : ''}
+                    </div>
+                    ${isSelected ? '<div class="check-mark">✓</div>' : ''}
+                `;
+                
+                container.appendChild(button);
+            });
+        }
+
+        function renderMainContent() {
+            const container = document.getElementById('mainContent');
+            
+            if (state.selectedLayer) {
+                const layer = layers[state.selectedLayer];
+                
+                container.innerHTML = `
+                    <div class="layer-detail-header">
+                        <div class="layer-detail-icon">${layer.icon}</div>
+                        <div class="layer-detail-title">${layer.title}</div>
+                    </div>
+                    
+                    <div class="description-box">
+                        <p><strong style="color: #92400e;">📖 Lee esto:</strong> ${layer.description}</p>
+                    </div>
+                    
+                    <div class="options-title">Selecciona una opción:</div>
+                    
+                    <div id="optionsContainer"></div>
+                `;
+                
+                const optionsContainer = document.getElementById('optionsContainer');
+                layer.options.forEach(option => {
+                    const isSelected = state.selections[state.selectedLayer] === option.id;
+                    const button = document.createElement('button');
+                    button.className = `option-button ${isSelected ? 'selected' : ''}`;
+                    button.onclick = () => selectOption(state.selectedLayer, option.id);
+                    button.innerHTML = `
+                        <div class="option-label">${option.label}</div>
+                        <div class="option-desc">${option.desc}</div>
+                    `;
+                    optionsContainer.appendChild(button);
+                });
+            } else {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-emoji">👆</div>
+                        <div class="empty-state-text">Haz clic en uno de los recuadros de arriba para comenzar a explorar</div>
+                    </div>
+                `;
+            }
+        }
+
+        function renderActionButtons() {
+            const container = document.getElementById('actionButtons');
+            
+            if (allSelected()) {
+                container.classList.remove('hidden');
+                container.innerHTML = `
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="showResult()">
+                            👁️ Ver Resultado
+                        </button>
+                        <button class="btn btn-secondary" onclick="resetAll()">
+                            Reiniciar
+                        </button>
+                    </div>
+                `;
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        function render() {
+            renderLayerButtons();
+            renderMainContent();
+            renderActionButtons();
+        }
+
+        // Funciones de interacción
+        function changeTab(tab) {
+            state.activeTab = tab;
+            
+            // Actualizar botones de pestañas
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Mostrar/ocultar contenido
+            document.getElementById('tab-explorador').classList.toggle('hidden', tab !== 'explorador');
+            document.getElementById('tab-conceptos').classList.toggle('hidden', tab !== 'conceptos');
+        }
+
+        function selectLayer(layer) {
+            state.selectedLayer = layer;
+            render();
+        }
+
+        function selectOption(layer, option) {
+            state.selections[layer] = option;
+            render();
+            
+            // Mostrar resultado automáticamente si todas las opciones están seleccionadas
+            if (allSelected()) {
+                setTimeout(() => showResult(), 300);
+            }
+        }
+
+        function resetAll() {
+            state.selections = {
+                sexo: null,
+                identidad: null,
+                expresion: null,
+                orientacion: null
+            };
+            state.selectedLayer = null;
+            closeModal();
+            render();
+        }
+
+        function showResult() {
+            document.getElementById('resultText').textContent = getResultMessage();
+            document.getElementById('modal').classList.remove('hidden');
+        }
+
+        function closeModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('modal').classList.add('hidden');
+        }
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', () => {
+            render();
+        });
+    </script>
 </body>
 </html>
